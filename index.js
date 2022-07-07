@@ -3,7 +3,8 @@ const {
     Location,
     List,
     Buttons,
-    LocalAuth
+    LocalAuth,
+    MessageMedia 
 } = require('whatsapp-web.js');
 const qrcode = require('qrcode-terminal');
 const chalk = require('chalk');
@@ -26,8 +27,7 @@ const sleep = (ms) => {
 
 const sendMsg = async (number, msg) => {
     const correctiveNumber = number.replace(' ', '').replace('-', '').replace('-', '')
-
-    const numberDetails = await client.getNumberId(correctiveNumber.substring(1) + '@c.us');
+    const numberDetails = await client.getNumberId(`${parseInt(correctiveNumber.replace('+', ''))}`);
 
     if (numberDetails) {
         client.sendMessage(numberDetails._serialized, msg);
@@ -73,15 +73,17 @@ const whatsAppBlast = async () => {
     let dataNumber = fs.readFileSync(pathNumber, 'utf8')
     let dataNumberInArray = dataNumber.toString().split('\n')
 
+    
     for (let i = 0; i < dataNumberInArray.length; i++) {
-        if (dataNumberInArray[i].includes('|')) {
-            let numberFormat = dataNumberInArray[i].split('|')
-            let textFormat = dataText.replace('{name}', numberFormat[1])
-            sendMsg(numberFormat[0], textFormat);
-        } else {
-            let textFormat = dataText.replace('{name}', '')
-            sendMsg(dataNumberInArray[i], textFormat);
-        }
+        const numberFormat = dataNumberInArray[i].split('|')[0]
+        let textFormat
+
+        if (dataNumberInArray[i].includes('|'))
+            textFormat = dataText.replace('{name}', dataNumberInArray[i].split('|')[1])
+        else
+            textFormat = dataText.replace('{name}', '')
+
+        sendMsg(numberFormat, textFormat);
         await sleep(delay);
 
         if (i == dataNumberInArray.length - 1) {
