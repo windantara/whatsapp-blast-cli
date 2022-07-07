@@ -1,18 +1,18 @@
 # WhatsApp Blast CLI
 ## by windantara
 
-Simple app for blasting whatsapp message
+Simple app for blasting WhatsApp message
 
 ## Features
 
-- Select number list
-- Select message list
-- Message with {name}
+- Select the number list
+- Select the message list
+- Message with name
 
 
 ## Installation
 
-Requires [Node.js](https://nodejs.org/) v12+ to run.
+Requires [Node.js](https://nodejs.org/) v12 - v14 to run.
 
 Install the dependencies
 
@@ -27,6 +27,13 @@ Running app:
 ```sh
 node .
 ```
+
+## Description
+
+- numberlist folder = list of number file (txt format), example: data1.txt
+- textlist folder = list of message file (txt format), example: message1.txt
+- Message with name = use format {name} in message file
+
 
 ## License
 
