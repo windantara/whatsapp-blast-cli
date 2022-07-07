@@ -18,6 +18,7 @@ const sleep = (ms) => {
 
 const sendMsg = async (number, msg) => {
     const correctiveNumber = number.replace(' ', '').replace('-', '').replace('-', '')
+    
     const numberDetails = await client.getNumberId(correctiveNumber.substring(1)+'@c.us');
     
     if (numberDetails) {
@@ -26,6 +27,13 @@ const sendMsg = async (number, msg) => {
     } else {
         console.log(chalk.red(`Mobile number is not registered : ${correctiveNumber}`));
     }
+}
+
+const randomTxtOnMsg = (option, msg) => {
+    if(option == 1)
+        return msg + '\n\n' + Math.random().toString(16).substr(2, 8);
+    else
+        return msg
 }
 
 client.on('qr', (qr) => {
@@ -44,28 +52,38 @@ client.on('auth_failure', msg => {
 });
 
 client.on('ready', async () => {
-    console.log('Client is ready!')
+    console.log(chalk.green('Client is ready!\n'));
 
-    let text = readlineSync.question('Message filename?\n')
-    let numberList = readlineSync.question('Phone number filename?\n')
-    let delay = readlineSync.question('Delay in seconds? ')
+    console.log(chalk.white.bgRed.bold('|--------------------------------------------------|'))
+    console.log(chalk.white.bgRed.bold('|                                                  |'))
+    console.log(chalk.white.bgRed.bold('| WhatsApp Blast CLI Version 1.0                   |'))
+    console.log(chalk.white.bgWhite.bold('| https://github.com/windantara/whatsapp-blast-cli |'))
+    console.log(chalk.white.bgWhite.bold('|                                                  |'))
+    console.log(chalk.white.bgWhite.bold('|--------------------------------------------------|'))
+
+    let randomTextOptionArray = ['No, keep original message', 'Yes, use random text on message']
+    let randomTextOption = readlineSync.keyInSelect(randomTextOptionArray, chalk.yellow('Use the random text on the bottom message'))
+    let text = readlineSync.question(chalk.yellow('Message filename                                   ') + ': ')
+    let numberList = readlineSync.question(chalk.yellow('Phone number filename                              ') + ': ')
+    let delay = readlineSync.question(chalk.yellow('Delay in miliseconds                               ') + ': ')
     let pathText = './textlist/'+text+'.txt'
     let pathNumber = './numberlist/'+numberList+'.txt'
 
     if(fs.existsSync(pathText) == false){
-        console.log(chalk.red('Message file not found, make sure you have the file in the textlist folder'))
+        console.log(chalk.red('\nMessage file not found, make sure you have the file in the textlist folder'))
         process.exit()
     }
 
     if(fs.existsSync(pathNumber) == false){
-        console.log(chalk.red('Phone number file not found, make sure you have the file in the numberlist folder'))
+        console.log(chalk.red('\nPhone number file not found, make sure you have the file in the numberlist folder'))
         process.exit()
     }
 
     let dataText = fs.readFileSync(pathText, 'utf8').toString()
+    dataText = randomTxtOnMsg(randomTextOption, dataText)
     let dataNumber = fs.readFileSync(pathNumber, 'utf8')
     let dataNumberInArray = dataNumber.toString().split('\n')
-
+    
     for(let i = 0; i < dataNumberInArray.length; i++){
         if(dataNumberInArray[i].includes('|')){
             let numberFormat = dataNumberInArray[i].split('|')
@@ -79,7 +97,7 @@ client.on('ready', async () => {
         await sleep(delay);
 
         if(i == dataNumberInArray.length-1){
-            console.log(chalk.green('All message sent successfully'))
+            console.log(chalk.green('\n\nBlast finished!'))
         }
     }
 
