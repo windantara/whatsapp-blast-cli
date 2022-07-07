@@ -27,13 +27,15 @@ const sleep = (ms) => {
 
 const sendMsg = async (number, msg) => {
     const correctiveNumber = number.replace(' ', '').replace('-', '').replace('-', '')
-    const numberDetails = await client.getNumberId(`${parseInt(correctiveNumber.replace('+', ''))}`);
+    const numberDetails = await client.getNumberId(`${parseInt(correctiveNumber.replace('+', ''))}`)
 
     if (numberDetails) {
-        client.sendMessage(numberDetails._serialized, msg);
-        console.log(chalk.green(`Message sent : ${correctiveNumber}`));
+        client.sendMessage(numberDetails._serialized, msg)
+        console.log(chalk.green(`Message sent : ${correctiveNumber}`))
+        return true
     } else {
-        console.log(chalk.red(`Mobile number is not registered : ${correctiveNumber}`));
+        console.log(chalk.red(`Mobile number is not registered : ${correctiveNumber}`))
+        return false
     }
 }
 
@@ -65,6 +67,7 @@ const whatsAppBlast = async () => {
         whatsAppBlastReload()
 
     let delay = readlineSync.question(chalk.yellow('Delay in miliseconds') + ': ')
+    console.log(chalk.yellow('\n\nProcessing...\n'))
     let pathText = './textlist/' + textListArray[textIndex] + '.txt'
     let pathNumber = './numberlist/' + numberListArray[numberIndex] + '.txt'
 
@@ -73,7 +76,8 @@ const whatsAppBlast = async () => {
     let dataNumber = fs.readFileSync(pathNumber, 'utf8')
     let dataNumberInArray = dataNumber.toString().split('\n')
 
-    
+    const reportName = + new Date()
+    let reportContent = []
     for (let i = 0; i < dataNumberInArray.length; i++) {
         const numberFormat = dataNumberInArray[i].split('|')[0]
         let textFormat
@@ -83,18 +87,31 @@ const whatsAppBlast = async () => {
         else
             textFormat = dataText.replace('{name}', '')
 
-        sendMsg(numberFormat, textFormat);
+        const status = await sendMsg(numberFormat, textFormat);
+        if (status) 
+            reportContent.push(`${parseInt(numberFormat)} : success`)
+        else 
+            reportContent.push(`${parseInt(numberFormat)} : failed`)
+
         await sleep(delay);
 
+        
         if (i == dataNumberInArray.length - 1) {
-            console.log(chalk.green('\n\nBlast finished!'))
-            let runAgainArray = ['No, close.', 'Yes, run again.']
-            let runAgainOption = readlineSync.keyInSelect(runAgainArray, chalk.yellow('Run the program again'))
-
-            if (runAgainOption == 1)
-                whatsAppBlastReload()
-            else
-                process.exit()
+            //create report  
+            fs.writeFile(`./report/${reportName}-${textListArray[textIndex]}-${numberListArray[numberIndex]}.txt`, reportContent.join('\r\n'), (err) => {
+                if (err)
+                    console.log(chalk.red(err));
+                else {
+                    console.log(chalk.green('\n\nBlast finished!'))
+                    let runAgainArray = ['No, close.', 'Yes, run again.']
+                    let runAgainOption = readlineSync.keyInSelect(runAgainArray, chalk.yellow('Run the program again'))
+        
+                    if (runAgainOption == 1)
+                        whatsAppBlastReload()
+                    else
+                        process.exit()
+                }
+            });
         }
     }
 }

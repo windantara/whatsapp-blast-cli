@@ -4,3 +4,5 @@
 !/numberlist/data1-example.txt 
 /textlist/*
 !/textlist/message1-example.txt 
+/report/*
+!/report/report-example.txt 
