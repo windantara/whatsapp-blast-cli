@@ -104,67 +104,67 @@ client.on('ready', async () => {
 });
 
 client.on('message', async msg => {
-    let message =  msg.body;
-    let chat = await msg.getChat();
-    const contact = await msg.getContact();
+    // let message =  msg.body;
+    // let chat = await msg.getChat();
+    // const contact = await msg.getContact();
 
-    if (chat.isGroup) {
-        if (msg.body === '!groupinfo') {
-            msg.reply(`
-                *Group Details*
-                Name: ${chat.name}
-                Description: ${chat.description}
-                Created At: ${chat.createdAt.toString()}
-                Created By: ${chat.owner.user}
-                Participant count: ${chat.participants.length}
-            `);
-        }
-    }
-    else{
-        if (msg.body == 'ping') {
-            chat.sendMessage(`Hi @${contact.pushname}!`);
-        }
-    }
+    // if (chat.isGroup) {
+    //     if (msg.body === '!groupinfo') {
+    //         msg.reply(`
+    //             *Group Details*
+    //             Name: ${chat.name}
+    //             Description: ${chat.description}
+    //             Created At: ${chat.createdAt.toString()}
+    //             Created By: ${chat.owner.user}
+    //             Participant count: ${chat.participants.length}
+    //         `);
+    //     }
+    // }
+    // else{
+    //     if (msg.body == 'ping') {
+    //         chat.sendMessage(`Hi @${contact.pushname}!`);
+    //     }
+    // }
 });
 
 client.on('message_create', async(msg) => {
     // Fired on all message creations, including your own
-    if (msg.fromMe) {
-        let message =  msg.body;
-        let chat = await msg.getChat();
-        const contact = await msg.getContact();
+    // if (msg.fromMe) {
+    //     let message =  msg.body;
+    //     let chat = await msg.getChat();
+    //     const contact = await msg.getContact();
 
-        if (chat.isGroup) {
-            if (msg.body === '!groupinfo') {
-                msg.reply(`
-                    *Group Details*
-                    Name: ${chat.name}
-                    Description: ${chat.description}
-                    Created At: ${chat.createdAt.toString()}
-                    Created By: ${chat.owner.user}
-                    Participant count: ${chat.participants.length}
-                `);
-            }
-        }
-        else{
-            if (msg.body == 'ping') {
-                chat.sendMessage(`Hi @${contact.pushname}!`);
-            }
-        }
-    }
+    //     if (chat.isGroup) {
+    //         if (msg.body === '!groupinfo') {
+    //             msg.reply(`
+    //                 *Group Details*
+    //                 Name: ${chat.name}
+    //                 Description: ${chat.description}
+    //                 Created At: ${chat.createdAt.toString()}
+    //                 Created By: ${chat.owner.user}
+    //                 Participant count: ${chat.participants.length}
+    //             `);
+    //         }
+    //     }
+    //     else{
+    //         if (msg.body == 'ping') {
+    //             chat.sendMessage(`Hi @${contact.pushname}!`);
+    //         }
+    //     }
+    // }
 });
 
 client.on('message_revoke_everyone', async (after, before) => {
     // Fired whenever a message is deleted by anyone (including you)
-    console.log('message_revoke_everyone', after); // message after it was deleted.
-    if (before) {
-        console.log(before); // message before it was deleted.
-    }
+    // console.log('message_revoke_everyone', after); // message after it was deleted.
+    // if (before) {
+    //     console.log(before); // message before it was deleted.
+    // }
 });
 
 client.on('message_revoke_me', async (msg) => {
     // Fired whenever a message is only deleted in your own view.
-    console.log('message_revoke_me', msg.body); // message before it was deleted.
+    // console.log('message_revoke_me', msg.body); // message before it was deleted.
 });
 
 client.on('message_ack', (msg, ack) => {
@@ -185,19 +185,19 @@ client.on('message_ack', (msg, ack) => {
 
 client.on('group_join', (notification) => {
     // User has joined or been added to the group.
-    console.log('join', notification);
+    // console.log('join', notification);
     // notification.reply('User joined.');
 });
 
 client.on('group_leave', (notification) => {
     // User has left or been kicked from the group.
-    console.log('leave', notification);
+    // console.log('leave', notification);
     // notification.reply('User left.');
 });
 
 client.on('group_update', (notification) => {
     // Group picture, subject or description has been updated.
-    console.log('update', notification);
+    // console.log('update', notification);
 });
 
 client.on('change_state', state => {
