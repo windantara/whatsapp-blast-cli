@@ -1,4 +1,10 @@
-const { Client, Location, List, Buttons, LocalAuth} = require('whatsapp-web.js');
+const {
+    Client,
+    Location,
+    List,
+    Buttons,
+    LocalAuth
+} = require('whatsapp-web.js');
 const qrcode = require('qrcode-terminal');
 const chalk = require('chalk');
 const fs = require('fs');
@@ -6,7 +12,9 @@ const readlineSync = require('readline-sync');
 
 const client = new Client({
     authStrategy: new LocalAuth(),
-    puppeteer: { headless: false }
+    puppeteer: {
+        headless: false
+    }
 });
 
 
@@ -18,9 +26,9 @@ const sleep = (ms) => {
 
 const sendMsg = async (number, msg) => {
     const correctiveNumber = number.replace(' ', '').replace('-', '').replace('-', '')
-    
-    const numberDetails = await client.getNumberId(correctiveNumber.substring(1)+'@c.us');
-    
+
+    const numberDetails = await client.getNumberId(correctiveNumber.substring(1) + '@c.us');
+
     if (numberDetails) {
         client.sendMessage(numberDetails._serialized, msg);
         console.log(chalk.green(`Message sent : ${correctiveNumber}`));
@@ -30,12 +38,69 @@ const sendMsg = async (number, msg) => {
 }
 
 const randomTxtOnMsg = (option, msg) => {
-    if(option == 1)
-        return msg + '\n\n' + Math.random().toString(16).substr(2, 8);
-    else
-        return msg
+    return (option == 1) ? (msg+'\n\n' + Math.random().toString(16).substr(2, 8)) : msg;
 }
 
+const whatsAppBlast = async () => {
+    let textListArray = [];
+    let numberListArray = [];
+    fs.readdirSync('./textlist/').forEach(file => {
+        textListArray.push(file.replace('.txt', ''))
+    });
+    fs.readdirSync('./numberlist/').forEach(file => {
+        numberListArray.push(file.replace('.txt', ''))
+    });
+
+    let randomTextOptionArray = ['No, keep original message', 'Yes, use random text on message']
+    let randomTextOption = readlineSync.keyInSelect(randomTextOptionArray, chalk.yellow('Use the random text on the bottom message'))
+    if(randomTextOption < 0) 
+        whatsAppBlastReload()
+
+    let textIndex = readlineSync.keyInSelect(textListArray, chalk.yellow('Message filename'))
+    if(textIndex < 0) 
+        whatsAppBlastReload()
+
+    let numberIndex = readlineSync.keyInSelect(numberListArray, chalk.yellow('Phone number filename'))
+    if(numberIndex < 0) 
+        whatsAppBlastReload()
+
+    let delay = readlineSync.question(chalk.yellow('Delay in miliseconds') + ': ')
+    let pathText = './textlist/' + textListArray[textIndex] + '.txt'
+    let pathNumber = './numberlist/' + numberListArray[numberIndex] + '.txt'
+
+    let dataText = fs.readFileSync(pathText, 'utf8').toString()
+    dataText = randomTxtOnMsg(randomTextOption, dataText)
+    let dataNumber = fs.readFileSync(pathNumber, 'utf8')
+    let dataNumberInArray = dataNumber.toString().split('\n')
+
+    for (let i = 0; i < dataNumberInArray.length; i++) {
+        if (dataNumberInArray[i].includes('|')) {
+            let numberFormat = dataNumberInArray[i].split('|')
+            let textFormat = dataText.replace('{name}', numberFormat[1])
+            sendMsg(numberFormat[0], textFormat);
+        } else {
+            let textFormat = dataText.replace('{name}', '')
+            sendMsg(dataNumberInArray[i], textFormat);
+        }
+        await sleep(delay);
+
+        if (i == dataNumberInArray.length - 1) {
+            console.log(chalk.green('\n\nBlast finished!'))
+            let runAgainArray = ['No, close.', 'Yes, run again.']
+            let runAgainOption = readlineSync.keyInSelect(runAgainArray, chalk.yellow('Run the program again'))
+
+            if (runAgainOption == 1)
+                whatsAppBlastReload()
+            else
+                process.exit()
+        }
+    }
+}
+
+const whatsAppBlastReload = () => {
+    console.clear()
+    whatsAppBlast()
+}
 client.on('qr', (qr) => {
     // Generate and scan this code with your phone
     // NOTE: This event will not be fired if a session is specified.
@@ -61,46 +126,7 @@ client.on('ready', async () => {
     console.log(chalk.white.bgWhite.bold('|                                                  |'))
     console.log(chalk.white.bgWhite.bold('|--------------------------------------------------|'))
 
-    let randomTextOptionArray = ['No, keep original message', 'Yes, use random text on message']
-    let randomTextOption = readlineSync.keyInSelect(randomTextOptionArray, chalk.yellow('Use the random text on the bottom message'))
-    let text = readlineSync.question(chalk.yellow('Message filename                                   ') + ': ')
-    let numberList = readlineSync.question(chalk.yellow('Phone number filename                              ') + ': ')
-    let delay = readlineSync.question(chalk.yellow('Delay in miliseconds                               ') + ': ')
-    let pathText = './textlist/'+text+'.txt'
-    let pathNumber = './numberlist/'+numberList+'.txt'
-
-    if(fs.existsSync(pathText) == false){
-        console.log(chalk.red('\nMessage file not found, make sure you have the file in the textlist folder'))
-        process.exit()
-    }
-
-    if(fs.existsSync(pathNumber) == false){
-        console.log(chalk.red('\nPhone number file not found, make sure you have the file in the numberlist folder'))
-        process.exit()
-    }
-
-    let dataText = fs.readFileSync(pathText, 'utf8').toString()
-    dataText = randomTxtOnMsg(randomTextOption, dataText)
-    let dataNumber = fs.readFileSync(pathNumber, 'utf8')
-    let dataNumberInArray = dataNumber.toString().split('\n')
-    
-    for(let i = 0; i < dataNumberInArray.length; i++){
-        if(dataNumberInArray[i].includes('|')){
-            let numberFormat = dataNumberInArray[i].split('|')
-            let textFormat = dataText.replace('{name}', numberFormat[1])
-            sendMsg(numberFormat[0], textFormat);
-        }
-        else{
-            let textFormat = dataText.replace('{name}', '')
-            sendMsg(dataNumberInArray[i], textFormat);
-        }
-        await sleep(delay);
-
-        if(i == dataNumberInArray.length-1){
-            console.log(chalk.green('\n\nBlast finished!'))
-        }
-    }
-
+    whatsAppBlast();
 });
 
 client.on('message', async msg => {
@@ -127,7 +153,7 @@ client.on('message', async msg => {
     // }
 });
 
-client.on('message_create', async(msg) => {
+client.on('message_create', async (msg) => {
     // Fired on all message creations, including your own
     // if (msg.fromMe) {
     //     let message =  msg.body;
@@ -178,7 +204,7 @@ client.on('message_ack', (msg, ack) => {
         ACK_PLAYED: 4
     */
 
-    if(ack == 3) {
+    if (ack == 3) {
         // The message was read
     }
 });
@@ -201,7 +227,7 @@ client.on('group_update', (notification) => {
 });
 
 client.on('change_state', state => {
-    console.log('CHANGE STATE', state );
+    console.log('CHANGE STATE', state);
 });
 
 client.on('disconnected', (reason) => {
