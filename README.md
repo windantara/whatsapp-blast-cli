@@ -3,8 +3,11 @@
 
 Simple app for blasting WhatsApp message
 
+![alt text](https://github.com/windantara/whatsapp-blast-cli/blob/main/screenshot.png?raw=true)
+
 ## Features
 
+- Add random text on message
 - Select the number list
 - Select the message list
 - Message with name
