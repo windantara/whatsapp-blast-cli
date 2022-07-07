@@ -1,0 +1,6 @@
+/node_modules
+/.wwebjs_auth
+/numberlist/*
+!/numberlist/data1-example.txt 
+/textlist/*
+!/textlist/message1-example.txt 
