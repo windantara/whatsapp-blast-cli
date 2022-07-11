@@ -3,7 +3,7 @@
 
 Simple app for blasting WhatsApp message
 
-![alt text](https://github.com/windantara/whatsapp-blast-cli/blob/main/screenshot.png?raw=true)
+![alt text](https://github.com/windantara/whatsapp-blast-cli/blob/89caa358d189c8ad920664a526f925436f368254/screenshot.png?raw=true)
 
 ## Features
 
@@ -11,7 +11,7 @@ Simple app for blasting WhatsApp message
 - Select the number list
 - Select the message list
 - Message with name
-
+- Create report
 
 ## Installation
 
