@@ -67,6 +67,14 @@ const whatsAppBlast = async () => {
         whatsAppBlastReload()
 
     let delay = readlineSync.question(chalk.yellow('Delay in miliseconds') + ': ')
+
+    let sleepOptionArray = ['No, run program without sleep', 'Yes, run program with sleep']
+    let sleepOption = readlineSync.keyInSelect(sleepOptionArray, chalk.yellow('Use sleep after some messages'))
+    let sleepAfter = (sleepOption == 1) ? readlineSync.question(chalk.yellow('Sleep after every message count') + ': ') : 0
+    let sleepAfterDelay = (sleepOption == 1) ? readlineSync.question(chalk.yellow('Sleep after every message count delay in miliseconds') + ': ') : 0
+    if(sleepOption < 0) 
+        whatsAppBlastReload()
+
     console.log(chalk.yellow('\n\nProcessing...\n'))
     let pathText = './textlist/' + textListArray[textIndex] + '.txt'
     let pathNumber = './numberlist/' + numberListArray[numberIndex] + '.txt'
@@ -78,7 +86,9 @@ const whatsAppBlast = async () => {
 
     const reportName = + new Date()
     let reportContent = []
+    let messageCount = 0
     for (let i = 0; i < dataNumberInArray.length; i++) {
+
         const numberFormat = dataNumberInArray[i].split('|')[0]
         let textFormat
 
@@ -95,7 +105,16 @@ const whatsAppBlast = async () => {
 
         await sleep(delay);
 
-        
+        //check if sleep is enabled
+        if(sleepAfter !== 0){
+            messageCount++
+            if(messageCount == sleepAfter){
+                console.log(chalk.yellow('sleep after ' + sleepAfter + ' messages'));
+                await sleep(sleepAfterDelay)
+                messageCount = 0
+            }
+        }
+
         if (i == dataNumberInArray.length - 1) {
             //create report  
             fs.writeFile(`./report/${reportName}-${textListArray[textIndex]}-${numberListArray[numberIndex]}.txt`, reportContent.join('\r\n'), (err) => {
