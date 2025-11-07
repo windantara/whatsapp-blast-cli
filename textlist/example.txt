@@ -1,0 +1,5 @@
+Hello {name}!
+
+This is an example message from WhatsApp Blast CLI v2.0.
+
+Thank you!

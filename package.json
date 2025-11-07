@@ -1,17 +1,35 @@
 {
-  "name": "wind-wabot",
-  "version": "1.0.0",
-  "description": "wa bot",
+  "name": "whatsapp-blast-cli",
+  "version": "2.0.0",
+  "description": "Modern WhatsApp Blast CLI with advanced features",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "setup": "node setup.js"
   },
-  "author": "",
-  "license": "ISC",
+  "keywords": [
+    "whatsapp",
+    "blast",
+    "cli",
+    "automation"
+  ],
+  "author": "windantara",
+  "license": "MIT",
+  "engines": {
+    "node": ">=16.0.0"
+  },
   "dependencies": {
     "chalk": "^4.1.2",
+    "cli-progress": "^3.12.0",
+    "dotenv": "^16.4.5",
     "qrcode-terminal": "^0.12.0",
     "readline-sync": "^1.4.10",
-    "whatsapp-web.js": "^1.17.1"
+    "whatsapp-web.js": "^1.23.1",
+    "winston": "^3.11.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
   }
 }
