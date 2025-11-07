@@ -12,7 +12,8 @@ const {
   replaceName,
   writeReport,
   sleep,
-  formatStatistics
+  formatStatistics,
+  applyMessageVariations,
 } = require('./utils');
 
 class BlastManager {
@@ -45,20 +46,26 @@ class BlastManager {
     const selections = this.getUserSelections();
     if (!selections) {
       logger.info('Blast cancelled by user');
-      return;
+      console.log(chalk.yellow('\n✗ Blast cancelled. Exiting...\n'));
+      await this.client.destroy();
+      process.exit(0);
     }
 
     // Load files
     const data = this.loadFiles(selections);
     if (!data) {
       logger.error('Failed to load files');
-      return;
+      console.log(chalk.red('\n✗ Failed to load files. Exiting...\n'));
+      await this.client.destroy();
+      process.exit(1);
     }
 
     // Confirm before starting
     if (!this.confirmBlast(data.numbers.length, selections)) {
       logger.info('Blast cancelled by user');
-      return;
+      console.log(chalk.yellow('\n✗ Blast cancelled. Exiting...\n'));
+      await this.client.destroy();
+      process.exit(0);
     }
 
     // Execute blast
@@ -69,12 +76,13 @@ class BlastManager {
    * Print application header
    */
   printHeader() {
+    console.clear();
     console.log(chalk.white.bgRed.bold('╔════════════════════════════════════════════════╗'));
     console.log(chalk.white.bgRed.bold('║                                                ║'));
     console.log(chalk.white.bgRed.bold('║     WhatsApp Blast CLI v2.0                    ║'));
-    console.log(chalk.white.bgBlue.bold('║     Enhanced & Modernized                      ║'));
-    console.log(chalk.white.bgBlue.bold('║                                                ║'));
-    console.log(chalk.white.bgBlue.bold('╚════════════════════════════════════════════════╝'));
+    console.log(chalk.red.bgWhite.bold('║     Enhanced & Modernized                      ║'));
+    console.log(chalk.red.bgWhite.bold('║                                                ║'));
+    console.log(chalk.red.bgWhite.bold('╚════════════════════════════════════════════════╝'));
     console.log('');
   }
 
@@ -112,13 +120,65 @@ class BlastManager {
       return null;
     }
 
-    // Random text option
-    const randomTextOptions = ['No, keep original message', 'Yes, add random text'];
-    const randomTextIndex = readlineSync.keyInSelect(
-      randomTextOptions,
-      chalk.yellow('Add random text to message?')
+    // Message Variation Options
+    console.log(chalk.cyan('\n═══════════════════════════════════════'));
+    console.log(chalk.cyan('MESSAGE VARIATION OPTIONS'));
+    console.log(chalk.cyan('═══════════════════════════════════════'));
+    
+    const variationOptions = [
+      'No variation (original message)',
+      'Add random suffix only (legacy)',
+      'Add emoji variation (smile, thumbs, sparkle)',
+      'Add whitespace variation',
+      'Full variation (spintax + dynamic + emoji)',
+    ];
+    
+    const variationIndex = readlineSync.keyInSelect(
+      variationOptions,
+      chalk.yellow('Select message variation type')
     );
-    if (randomTextIndex < 0) return null;
+    if (variationIndex < 0) return null;
+
+    // Set variation options based on selection
+    let messageVariationOptions = {
+      useSpintax: true,
+      useEmoji: false,
+      useWhitespace: false,
+      useDynamicVars: true,
+      useRandomSuffix: false,
+    };
+
+    switch (variationIndex) {
+      case 0: // No variation
+        messageVariationOptions = {
+          useSpintax: false,
+          useEmoji: false,
+          useWhitespace: false,
+          useDynamicVars: false,
+          useRandomSuffix: false,
+        };
+        break;
+      case 1: // Random suffix only (legacy)
+        messageVariationOptions.useRandomSuffix = true;
+        messageVariationOptions.useSpintax = false;
+        messageVariationOptions.useDynamicVars = false;
+        break;
+      case 2: // Emoji variation
+        messageVariationOptions.useEmoji = true;
+        break;
+      case 3: // Whitespace variation
+        messageVariationOptions.useWhitespace = true;
+        break;
+      case 4: // Full variation
+        messageVariationOptions = {
+          useSpintax: true,
+          useEmoji: true,
+          useWhitespace: true,
+          useDynamicVars: true,
+          useRandomSuffix: false,
+        };
+        break;
+    }
 
     // Select text file
     const textIndex = readlineSync.keyInSelect(
@@ -164,7 +224,7 @@ class BlastManager {
     }
 
     return {
-      useRandomText: randomTextIndex === 1,
+      messageVariation: messageVariationOptions,
       textFile: textFiles[textIndex],
       numberFile: numberFiles[numberIndex],
       delay,
@@ -188,7 +248,8 @@ class BlastManager {
       return null;
     }
 
-    textContent = addRandomText(selections.useRandomText, textContent);
+    // Note: We don't apply variations here anymore
+    // Variations will be applied per-message for uniqueness
 
     // Load number file
     const numberPath = path.join(config.directories.numberlist, `${selections.numberFile}.txt`);
@@ -230,7 +291,18 @@ class BlastManager {
     console.log(chalk.white(`Number File:     ${selections.numberFile}`));
     console.log(chalk.white(`Recipients:      ${count}`));
     console.log(chalk.white(`Delay:           ${selections.delay}ms`));
-    console.log(chalk.white(`Random Text:     ${selections.useRandomText ? 'Yes' : 'No'}`));
+    
+    // Show variation info
+    const variations = [];
+    if (selections.messageVariation.useSpintax) variations.push('Spintax');
+    if (selections.messageVariation.useEmoji) variations.push('Emoji');
+    if (selections.messageVariation.useWhitespace) variations.push('Whitespace');
+    if (selections.messageVariation.useDynamicVars) variations.push('Dynamic Vars');
+    if (selections.messageVariation.useRandomSuffix) variations.push('Random Suffix');
+    
+    const variationText = variations.length > 0 ? variations.join(', ') : 'None';
+    console.log(chalk.white(`Variations:      ${variationText}`));
+    
     if (selections.sleepAfter > 0) {
       console.log(chalk.white(`Sleep After:     ${selections.sleepAfter} messages`));
       console.log(chalk.white(`Sleep Duration:  ${selections.sleepDuration}ms`));
@@ -273,7 +345,12 @@ class BlastManager {
     // Process each number
     for (let i = 0; i < data.numbers.length; i++) {
       const item = data.numbers[i];
-      const message = replaceName(data.text, item.name);
+      
+      // Replace name placeholder
+      let message = replaceName(data.text, item.name);
+      
+      // Apply message variations (unique for each message!)
+      message = applyMessageVariations(message, selections.messageVariation);
 
       // Send message
       const result = await this.client.sendMessage(item.number, message);

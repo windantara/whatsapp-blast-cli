@@ -5,6 +5,43 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.0] - 2024-11-08
+
+### Added
+- ✨ **Message Variations System** - Advanced message variation for better spam protection
+  - **Spintax Support**: {option1|option2|option3} syntax for word variations
+  - **Dynamic Variables**: {date}, {time}, {datetime}, {day}, {month}, {year}, {random_number}, {random_string}
+  - **Emoji Variation**: Random emoji placement (12 emoji pool)
+  - **Whitespace Variation**: Subtle whitespace differences
+  - **Random Suffix**: Legacy random text support
+  - **5 Variation Modes**: No variation, Random suffix, Emoji, Whitespace, Full variation
+- 📚 **MESSAGE_VARIATIONS_GUIDE.md** - Comprehensive guide for message variations (15KB)
+- 📝 **example-spintax.txt** - Template example with spintax demonstration
+- 🎨 **applyMessageVariations()** function in utils.js - Main variation processor
+- 🔧 **processSpintax()** function - Spintax parser and resolver
+- 🎲 **replaceDynamicVariables()** function - Dynamic variable replacer
+- 😊 **addEmojiVariation()** function - Emoji variation handler
+- 📏 **addWhitespaceVariation()** function - Whitespace variation handler
+
+### Changed
+- 🔄 Updated blast.js - New variation selection menu with 5 modes
+- 🔄 Updated utils.js - Enhanced with 5 new variation functions
+- 🔄 Modified message processing - Apply variations per-message for uniqueness
+- 🔄 Enhanced confirmation screen - Show selected variation types
+
+### Improved
+- ⬆️ **Success Rate**: Expected +5-10% improvement from unique messages
+- 🔐 **Spam Protection**: Each message now unique, reducing spam detection
+- 🤖 **Anti-Bot Detection**: More natural, human-like message variations
+- 📈 **Deliverability**: Better message delivery with unique content
+
+### Benefits
+- ✅ Avoid spam detection with unique messages
+- ✅ Reduce ban risk with natural variations
+- ✅ Increase engagement with dynamic content
+- ✅ Professional appearance with context-aware variations
+- ✅ Flexible options from no variation to full variation
+
 ## [2.0.0] - 2024-01-15
 
 ### Added

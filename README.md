@@ -32,7 +32,12 @@ Modern, enhanced WhatsApp bulk messaging tool with advanced features, better err
 
 - ✅ **Bulk Messaging**: Send messages to multiple contacts
 - ✅ **Personalization**: Use `{name}` placeholder for personalized messages
-- ✅ **Random Text**: Option to add random text to avoid spam detection
+- ✅ **Message Variations**: Advanced variations to avoid spam detection ⭐ NEW!
+  - Spintax support: `{option1|option2|option3}`
+  - Dynamic variables: `{date}`, `{time}`, `{random_string}`
+  - Emoji variations with 12 emoji pool
+  - 5 variation modes from basic to full
+- ✅ **Random Text**: Option to add random text to avoid spam detection (legacy)
 - ✅ **Delay Control**: Configurable delay between messages
 - ✅ **Sleep Intervals**: Add sleep periods during blast
 - ✅ **Retry Mechanism**: Automatic retry on failures

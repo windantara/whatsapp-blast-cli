@@ -1,0 +1,8 @@
+whatsapp-blast-cli-v2/
+�├── .gitkeep
+�├── .gitkeep
+�├── example.txt
+�├── .gitkeep
+�├── README.txt
+�├── .gitkeep
+�├── example.txt
